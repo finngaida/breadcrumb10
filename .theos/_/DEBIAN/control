@@ -1,0 +1,11 @@
+Package: de.finngaida.breadcrumb10
+Name: Breadcrumb10
+Depends: mobilesubstrate
+Architecture: iphoneos-arm
+Description: Use the better iOS 10 breadcrumbs in the status bar
+Depiction: http://finngaida.de/repo/depictions/de.finngaida.breadcrumb10
+Maintainer: Finn Gaida
+Author: Finn Gaida
+Section: Tweaks
+Version: 0.0.1-3+debug
+Installed-Size: 140
