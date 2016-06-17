@@ -2,71 +2,60 @@
 @interface UIStatusBarItemView : UIView
 + (id)createViewForItem:(id)arg1 withData:(id)arg2 actions:(int)arg3 foregroundStyle:(id)arg4;
 - (id)initWithItem:(id)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4;
+- (void)setVisible:(BOOL)arg1;
+- (void)setVisible:(BOOL)arg1 frame:(id)arg2 duration:(double)arg3;
 @end
 
 @interface UIStatusBarBreadcrumbItemView : UIStatusBarItemView
-- (id)_backAppTitle;
-- (id)_buttonTitle;
-- (id)_collapsedButtonTitle;
-- (void)activateBreadcrumb:(id)arg1;
+- (void)showSignalItem;
 @end
 
-%hook _UIStatusBarSystemNavigationItemButton
-- (id)imageRectForContentRect:(id)arg1{
-    %log;
-    return %orig;
-}
-%end
+@interface UIStatusBarDataNetworkItemView : UIStatusBarItemView
+@property (getter=isVisible, nonatomic) BOOL visible;
+@end
 
 %hook UIStatusBarBreadcrumbItemView
 
-+ (id)createViewForItem:(id)arg1 withData:(id)arg2 actions:(int)arg3 foregroundStyle:(id)arg4 {
-    %log;
-    return %orig;
-}
-
 - (id)initWithItem:(id)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4 {
-    %log;
-    return %orig;
-}
-
-- (id)_backAppTitle {
     id orig = %orig;
-    %log(orig);
+    UIButton *button = MSHookIvar<UIButton *>(orig, "_button");
+    UIImage *img = [UIImage imageWithContentsOfFile:@"/Library/breadcrumb10/left@2x.png"];
+    [button setImage:img forState:UIControlStateNormal];
+    [self showSignalItem];
     return orig;
 }
 
-- (id)_buttonTitle {
+- (id)shortenedTitleWithCompressionLevel:(int)arg1 {
     id orig = %orig;
-    %log(orig);
+    [self showSignalItem];
+    
+    NSArray *comps = [orig componentsSeparatedByString:@" "];
+    if (comps.count > 2) {
+        return comps[2];
+    }
+    
     return orig;
 }
 
-- (id)_collapsedButtonTitle {
-    id orig = %orig;
-    %log(orig);
-    return orig;
-}
-
-- (void)activateBreadcrumb:(id)arg1 {
-    %log;
-    return %orig;
-}
-
-- (id)destinationText{
-    %log;
-    return %orig;
-}
-- (id)shortenedTitleWithCompressionLevel:(int)arg1{
-    %log;
-    return %orig;
+%new
+- (void)showSignalItem {
+    NSArray *siblings = self.superview.subviews;
+    for (UIView *v in siblings) {
+        if ([v class] == NSClassFromString(@"UIStatusBarDataNetworkItemView")) {
+            UIStatusBarDataNetworkItemView *item = (UIStatusBarDataNetworkItemView *)v;
+//            item.alpha = 1.0;
+//            item.visible = YES;
+            item.frame = CGRectMake(self.frame.origin.x + self.frame.size.width + 5, v.frame.origin.y, v.frame.size.width, v.frame.size.height);
+        }
+    }
 }
 
 %end
 
-%hook UIStatusBarSystemNavigationItemView
-- (struct CGSize)_buttonSize{
-    %log;
-    return %orig;
+%hook UIStatusBarDataNetworkItemView
+
+- (void)setVisible:(BOOL)arg1 {
+    %orig(YES);
 }
+
 %end
